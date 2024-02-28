@@ -1,0 +1,87 @@
+Procedure 1  create teble
+CREATE PROCEDURE CreerTablesProduitBrutEtComposition AS
+BEGIN
+    -- Création de la table ProduitBrut
+    CREATE TABLE ProduitBrut (
+        CodProBrut INT PRIMARY KEY,
+        NomProBrut VARCHAR(100),
+        PrixAchat DECIMAL(10, 2),
+        NumFour INT,
+        FOREIGN KEY (NumFour) REFERENCES Fournisseur(NumFour)
+    );
+
+    -- Création de la table Composition
+    CREATE TABLE Composition (
+        CodProFini INT,
+        CodProBrut INT,
+        QteUtilisee INT,
+        FOREIGN KEY (CodProFini) REFERENCES ProduitFini(CodProFini),
+        FOREIGN KEY (CodProBrut) REFERENCES ProduitBrut(CodProBrut),
+        PRIMARY KEY (CodProFini, CodProBrut)
+    );
+END;
+
+Procedure 2  Affiche le nombre de produits dune table avec autre table id
+
+DELIMITER //
+
+CREATE PROCEDURE P2()
+BEGIN
+    SELECT pf.NomPro, COUNT(c.CodProBrut) AS NombreProduitsBruts
+    FROM produitfini
+    LEFT JOIN composition c ON pf.CodProFini = c.CodProFini
+    GROUP BY pf.CodProFini, pf.NomPro;
+END//
+
+DELIMITER ;
+
+Procedure3 retourn les sortie le prix dachat le plus eleve MAX
+
+
+CREATE PROCEDURE PrixAchatLePlusEleve AS
+BEGIN
+    SELECT MAX(PrixAchat) AS PrixMax
+    FROM ProduitBrut;
+END;
+
+Procedure 4  pur affiche la liste des produits finis utilisant plus de deux produits bruts
+
+CREATE PROCEDURE AfficherProduitsFinisAvecPlusDeDeuxProduitsBruts AS
+BEGIN
+    SELECT pf.CodProFini, pf.NomPro
+    FROM ProduitFini pf
+    JOIN (
+        SELECT CodProFini, COUNT(*) AS NombreProduitsBruts
+        FROM Composition
+        GROUP BY CodProFini
+        HAVING COUNT(*) > 2
+    ) AS cb ON pf.CodProFini = cb.CodProFini;
+END;
+
+Procedure 5 qui recoit le nom dun produit  brut et retourne en sortie la raison  sociale de son fourniseur
+
+CREATE PROCEDURE AfficherProduitsFinisAvecPlusDeDeuxProduitsBruts AS
+BEGIN
+    SELECT pf.CodProFini, pf.NomPro
+    FROM ProduitFini pf
+    JOIN (
+        SELECT CodProFini, COUNT(*) AS NombreProduitsBruts
+        FROM Composition
+        GROUP BY CodProFini
+        HAVING COUNT(*) > 2
+    ) AS cb ON pf.CodProFini = cb.CodProFini;
+END;
+
+Prosedure 6 qui recoit le code dun produit fini et qui affiche la list des mouvements de sortie pour ce produis
+CREATE PROCEDURE AfficherMouvementsSortiePourProduitFini (@CodProFini INT) AS
+BEGIN
+    SELECT m.*
+    FROM Mouvement m
+    WHERE m.TypeMvt = 'Sortie'
+    AND m.CodProFini = @CodProFini;
+END;
+--------------------------
+
+
+
+
